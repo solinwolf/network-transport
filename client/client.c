@@ -9,7 +9,10 @@
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
+<<<<<<< HEAD
 #include <string.h>
+=======
+>>>>>>> e9af85f5e4f8d1d57c71dd6c573cd2c5d96eecb3
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
@@ -18,7 +21,11 @@ struct sockaddr_in serveraddr;
 #define PORT 3333
 SSL_CTX *ctx;
 SSL *ssl;
+<<<<<<< HEAD
 int  clink(char *ipaddr)
+=======
+void clink(char *ipaddr)
+>>>>>>> e9af85f5e4f8d1d57c71dd6c573cd2c5d96eecb3
 {
     int flag;
     //create socket 
@@ -34,11 +41,18 @@ int  clink(char *ipaddr)
 	perror("connect:");
 	exit(0);
     }
+<<<<<<< HEAD
     //create ssl socket
     ssl = SSL_new(ctx);
     SSL_set_fd(ssl,sockfd);
     SSL_connect(ssl);
     return 1;
+=======
+    //建立ssl套接字
+    ssl = SSL_new(ctx);
+    SSL_set_fd(ssl,sockfd);
+    SSL_connect(ssl);
+>>>>>>> e9af85f5e4f8d1d57c71dd6c573cd2c5d96eecb3
 }
 
 void uploadFile(char *filename)
@@ -99,9 +113,23 @@ void downloadFile(char *filename)
 	perror("open:");
 	exit(0);
     }
+<<<<<<< HEAD
     SSL_read(ssl,&filesize,4);
     //read file content
     while((count=SSL_read(ssl,(void*)buf,1024))>0)
+=======
+    //read file propertes
+    //write(sockfd,&cmd,1);
+    //write(sockfd,(void*)&namesize,4);
+    //write(sockfd,filename,namesize);
+    //read(sockfd,&filesize,4);
+    SSL_write(ssl,&cmd,1);
+    SSL_write(ssl,(void*)&namesize,4);
+    SSL_write(ssl,filename,namesize);
+    SSL_read(ssl,&filesize,4);
+    //read file content
+    while((count=SSL_read(ssl,(void*)&buf,1024))>0)
+>>>>>>> e9af85f5e4f8d1d57c71dd6c573cd2c5d96eecb3
     {
 	write(fd,&buf,count);
 	tmpsize += count;
@@ -118,7 +146,11 @@ void quitS()
     SSL_shutdown(ssl);
     SSL_free(ssl);
     
+<<<<<<< HEAD
     //disconnect 
+=======
+    //4. disconnect 
+>>>>>>> e9af85f5e4f8d1d57c71dd6c573cd2c5d96eecb3
     close(sockfd);
     SSL_CTX_free(ctx);
     exit(0);
