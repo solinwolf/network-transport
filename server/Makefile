@@ -1,5 +1,5 @@
 server:server.c
-	gcc server.c -o server
+	gcc server.c -o server -L/usr/lib -lssl -lcrypto
 
 .PHONY:clean
 clean:

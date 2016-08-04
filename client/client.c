@@ -1,21 +1,24 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
 #include <strings.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
-#include <string.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
 #include <errno.h>
+#include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 int sockfd;
 struct sockaddr_in serveraddr;
 #define PORT 3333
-
-void clink(char *ipaddr)
+SSL_CTX *ctx;
+SSL *ssl;
+int  clink(char *ipaddr)
 {
     int flag;
     //create socket 
@@ -31,6 +34,11 @@ void clink(char *ipaddr)
 	perror("connect:");
 	exit(0);
     }
+    //create ssl socket
+    ssl = SSL_new(ctx);
+    SSL_set_fd(ssl,sockfd);
+    SSL_connect(ssl);
+    return 1;
 }
 
 void uploadFile(char *filename)
@@ -48,18 +56,20 @@ void uploadFile(char *filename)
 	exit(0);
     }
     //send file propertes
-    write(sockfd,&cmd,1);
-    write(sockfd,(void*)&namesize,4);
-    write(sockfd,filename,namesize);
-    
+  //  write(sockfd,&cmd,1);
+  //  write(sockfd,(void*)&namesize,4);
+   // write(sockfd,filename,namesize);
+    SSL_write(ssl,&cmd,1);
+    SSL_write(ssl,(void*)&namesize,4);
+    SSL_write(ssl,filename,namesize);
     if(stat(filename,&fileStat)==-1)
 	return;
-    write(sockfd,(void*)&(fileStat.st_size),4);
-
+    //write(sockfd,(void*)&(fileStat.st_size),4);
+    SSL_write(ssl,(void*)&(fileStat.st_size),4);
     //send file content
-    while((count=read(fd,(void *)&buf,1024))>0)
+    while((count=read(fd,(void *)buf,1024))>0)
     {
-	write(sockfd,&buf,count);	
+	SSL_write(ssl,&buf,count);	
     }		
 	
     close(fd);
@@ -75,19 +85,23 @@ void downloadFile(char *filename)
     int filesize=0;
     int tmpsize=0;
     //open file
+
+    //read file propertes
+    //write(sockfd,&cmd,1);
+    //write(sockfd,(void*)&namesize,4);
+    //write(sockfd,filename,namesize);
+    //read(sockfd,&filesize,4);
+    SSL_write(ssl,&cmd,1);
+    SSL_write(ssl,(void*)&namesize,4);
+    SSL_write(ssl,filename,namesize);
     if((fd = open(filename,O_RDWR|O_CREAT,0777))<0)
     {
 	perror("open:");
 	exit(0);
     }
-    //read file propertes
-    write(sockfd,&cmd,1);
-    write(sockfd,(void*)&namesize,4);
-    write(sockfd,filename,namesize);
-    read(sockfd,&filesize,4);
-    
+    SSL_read(ssl,&filesize,4);
     //read file content
-    while((count=read(sockfd,(void*)&buf,1024))>0)
+    while((count=SSL_read(ssl,(void*)buf,1024))>0)
     {
 	write(fd,&buf,count);
 	tmpsize += count;
@@ -99,8 +113,14 @@ void downloadFile(char *filename)
 void quitS()
 {
     char cmd='Q';
-    write(sockfd,&cmd,1);
+    SSL_write(ssl,&cmd,1);
     system("clear");
+    SSL_shutdown(ssl);
+    SSL_free(ssl);
+    
+    //disconnect 
+    close(sockfd);
+    SSL_CTX_free(ctx);
     exit(0);
 }
 void menu() 
@@ -155,18 +175,22 @@ void menu()
 
 int main(int argc,char* argv[])
 {
-    //1. check args
+    //check args
     if(argc!=2)
     {
          printf("usage: ./client 192.168.1.100(ip address)\n");
 	 exit(0);
     }
+    //openssl initialization
+    SSL_library_init();
+    OpenSSL_add_all_algorithms();
+    SSL_load_error_strings();
+    ctx=SSL_CTX_new(SSLv23_client_method());
     //2. connect to server
     clink(argv[1]);
     //3. update and download
     menu();
-    //4. disconnect 
-    close(sockfd);
+
     return 0;
 }
 
