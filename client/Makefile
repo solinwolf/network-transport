@@ -1,5 +1,5 @@
 client:client.c
-	gcc client.c -o  client
+	gcc client.c -o  client  -lssl -lcrypto
 
 .PHONY:clean
 clean:
