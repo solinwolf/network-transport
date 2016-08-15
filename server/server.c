@@ -11,10 +11,8 @@
 #include <unistd.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-<<<<<<< HEAD
+
 #include <pthread.h> 
-=======
->>>>>>> 11346f9bdab6a43b9a4fcb9c2a81802459910fff
 
 #define PORT 3333
 int sockfd;
@@ -23,7 +21,6 @@ struct sockaddr_in seraddr;
 struct sockaddr_in cliaddr;
 SSL_CTX *ctx;
 SSL *ssl;
-<<<<<<< HEAD
 typedef struct task 
 { 
     void *(*process) (int arg); 
@@ -149,8 +146,6 @@ int pool_add_task (void *(*process) (int arg), int arg)
     return 0; 
 }
 
-=======
->>>>>>> 11346f9bdab6a43b9a4fcb9c2a81802459910fff
 
 void setup()
 {
@@ -284,7 +279,6 @@ void * process(int arg)
 		//read(new_fd,&cmd,1);
 		SSL_read(ssl,&cmd,1);
 
-<<<<<<< HEAD
 		if(cmd == 'Q')
 		{
 			/*SSLÍË³ö*/
@@ -301,8 +295,6 @@ void * process(int arg)
 	
 	return NULL;
 }
-=======
->>>>>>> 11346f9bdab6a43b9a4fcb9c2a81802459910fff
 int main(int argc,char* argv[])
 {
     if(argc!=1)
@@ -323,36 +315,9 @@ int main(int argc,char* argv[])
 			perror("accept:");
 			exit(-1);
 		}
-<<<<<<< HEAD
         pool_add_task(process,sockfdnew);
-=======
 		printf("%s connected\n",inet_ntoa(cliaddr.sin_addr));
-		ssl = SSL_new(ctx);
-		SSL_set_fd(ssl,sockfdnew);
-   		if (SSL_accept(ssl) == -1)
-   		{
-      		perror("accept");
-      		close(sockfdnew);
-   		}	
 		
-		while(1)
-		{
-			SSL_read(ssl,&cmd,1);
-			if(cmd == 'Q')
-		    {
-				printf("%s disconnected \n",inet_ntoa(cliaddr.sin_addr));
-	   			close(sockfdnew);
-				break;
-			}
-			else
-			{
-				handle(cmd);
-			}
-		}
-		SSL_shutdown(ssl);
-		SSL_free(ssl);
-		close(sockfdnew);
->>>>>>> 11346f9bdab6a43b9a4fcb9c2a81802459910fff
     }
     close(sockfd);
     return 0;
