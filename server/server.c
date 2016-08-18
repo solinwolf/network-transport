@@ -18,7 +18,6 @@ int sockfdnew;
 struct sockaddr_in seraddr;
 struct sockaddr_in cliaddr;
 SSL_CTX *ctx;
-SSL *ssl;
 //定义线程池任务结构
 typedef struct task 
 { 
