@@ -1,5 +1,5 @@
 server:server.c
-	gcc server.c -o server -L/usr/lib -lssl -lcrypto -lpthread
+	gcc server.c net.c thread.c -o server -L/usr/lib -lssl -lcrypto -lpthread
 
 .PHONY:clean
 clean:
