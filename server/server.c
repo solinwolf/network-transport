@@ -149,7 +149,7 @@ int pool_add_task (void *(*process) (int arg), int arg)
     pool->cur_task_size++; 
 	//解锁
     pthread_mutex_unlock (&(pool->queue_lock)); 
-    //发出信号，让系统知道已经有如任务可以执行
+    //发出条件变量信号，让线程知道已经有有任务可以执行
     pthread_cond_signal (&(pool->queue_ready)); 
     
     return 0; 
