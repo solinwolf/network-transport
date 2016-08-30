@@ -41,7 +41,7 @@ void menu()
 	    case '3':
   		printf("Quiting....\n");
 	//	while ((c=getchar()) != '\n' && c != EOF);
-        	quitS();
+        	quit();
 		
 		break;
 	

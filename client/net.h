@@ -19,6 +19,6 @@
 void clink(char *ipaddr);
 void uploadFile(char *filename);
 void downloadFile(char *filename);
-void quitS();
+void quit();
 
 #endif
